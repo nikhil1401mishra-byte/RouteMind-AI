@@ -1,0 +1,13 @@
+# RouteMind AI runs with ZERO dependencies on a clean Python 3.9+ install.
+# The backend uses only the standard library (http.server, urllib, json).
+#
+#   python run.py
+#
+# Installing the packages below is OPTIONAL. It switches the backend to the
+# FastAPI + uvicorn stack targeted in Phase 2 of the roadmap and adds
+# interactive OpenAPI docs at /docs. The API behaviour is identical either way.
+#
+#   pip install -r requirements.txt
+
+fastapi>=0.110
+uvicorn>=0.27

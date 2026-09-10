@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RouteMind AI - Logistics Control Room - North East India</title>
+<meta name="description" content="Predictive logistics control room for India's North East: live weather, seismic and traffic data scored into road disruption risk, with risk-aware rerouting." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236D28D9'/%3E%3Cpath d='M8 22c4 0 4-12 8-12s4 12 8 12' stroke='white' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============================ SIDEBAR ============================ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="22" height="22">
+          <path d="M6 23c4.5 0 4.5-14 10-14s5.5 14 10 14" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+          <circle cx="6" cy="23" r="2.6" fill="currentColor"/>
+          <circle cx="26" cy="23" r="2.6" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <strong>RouteMind<span class="brand-ai">AI</span></strong>
+        <span>North East Logistics</span>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav" aria-label="Sections">
+      <button class="nav-item is-active" data-view="control">
+        <svg viewBox="0 0 24 24" class="ico"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="10" width="7" height="11" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>Control room</span>
+      </button>
+      <button class="nav-item" data-view="risk">
+        <svg viewBox="0 0 24 24" class="ico"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 16.5v.5" class="stroke light"/></svg>
+        <span>Road risk</span>
+        <em class="nav-badge" id="badge-risk" hidden></em>
+      </button>
+      <button class="nav-item" data-view="fleet">
+        <svg viewBox="0 0 24 24" class="ico"><rect x="1" y="7" width="13" height="9" rx="1.5"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>
+        <span>Fleet</span>
+        <em class="nav-badge" id="badge-fleet" hidden></em>
+      </button>
+      <button class="nav-item" data-view="deliveries">
+        <svg viewBox="0 0 24 24" class="ico"><path d="M3 7l9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7" class="stroke"/></svg>
+        <span>Deliveries</span>
+        <em class="nav-badge" id="badge-deliveries" hidden></em>
+      </button>
+      <button class="nav-item" data-view="incidents">
+        <svg viewBox="0 0 24 24" class="ico"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16v.6" class="stroke light"/></svg>
+        <span>Incidents</span>
+        <em class="nav-badge" id="badge-incidents" hidden></em>
+      </button>
+      <button class="nav-item" data-view="routes">
+        <svg viewBox="0 0 24 24" class="ico"><circle cx="5" cy="6" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M5 9v3a4 4 0 004 4h6" class="stroke"/></svg>
+        <span>Route planner</span>
+      </button>
+      <button class="nav-item" data-view="inventory">
+        <svg viewBox="0 0 24 24" class="ico"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="13" width="8" height="7" rx="1.5"/><rect x="13" y="13" width="8" height="7" rx="1.5"/></svg>
+        <span>Supply depots</span>
+      </button>
+      <button class="nav-item" data-view="simulation">
+        <svg viewBox="0 0 24 24" class="ico"><path d="M8 5l11 7-11 7z"/></svg>
+        <span>Disruption drill</span>
+      </button>
+      <button class="nav-item" data-view="alerts">
+        <svg viewBox="0 0 24 24" class="ico"><path d="M12 3a6 6 0 016 6v4l2 3H4l2-3V9a6 6 0 016-6z"/><path d="M10 19a2 2 0 004 0" class="stroke"/></svg>
+        <span>Alerts</span>
+        <em class="nav-badge crit" id="badge-alerts" hidden></em>
+      </button>
+    </nav>
+
+    <div class="sidebar-foot">
+      <button class="feed-card" id="feed-card" type="button" title="Where this data comes from">
+        <div class="feed-head">
+          <span class="dot" id="feed-dot"></span>
+          <span id="feed-title">Connecting...</span>
+        </div>
+        <div class="feed-sub" id="feed-sub">Checking live data feeds</div>
+      </button>
+      <div class="proto-note">
+        Prototype - risk scores come from a transparent heuristic model, not a trained ML model.
+        <button class="linkish" id="open-model-card" type="button">Model card</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============================== MAIN ============================== -->
+  <div class="main">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 id="page-title">Control room</h1>
+        <p id="page-sub">Live operational picture across the eight North Eastern states</p>
+      </div>
+      <div class="topbar-right">
+        <div class="clock">
+          <span id="clock-time">--:--</span>
+          <small id="clock-date">-</small>
+        </div>
+        <div class="live-pill" id="live-pill" title="Auto-refresh status">
+          <span class="pulse"></span><span id="live-label">Live</span>
+        </div>
+        <button class="btn ghost" id="btn-refresh" title="Refresh now">
+          <svg viewBox="0 0 24 24" class="ico"><path d="M20 12a8 8 0 11-2.3-5.6" class="stroke"/><path d="M20 4v5h-5" class="stroke"/></svg>
+          Refresh
+        </button>
+        <button class="btn primary" id="btn-run-drill">
+          <svg viewBox="0 0 24 24" class="ico"><path d="M8 5l11 7-11 7z"/></svg>
+          Run disruption drill
+        </button>
+      </div>
+    </header>
+
+    <div class="scroll" id="scroll">
+
+      <!-- ========================= CONTROL ROOM ========================= -->
+      <section class="view is-active" id="view-control">
+
+        <div class="kpi-row" id="kpi-row"></div>
+
+        <div class="split">
+          <div class="card map-card">
+            <div class="card-head">
+              <div>
+                <h2>Live network map</h2>
+                <p class="muted" id="map-caption">Roads coloured by disruption risk - vehicles, incidents and depots plotted live</p>
+              </div>
+              <div class="map-tools">
+                <div class="seg" id="map-mode" role="group" aria-label="Map colouring">
+                  <button class="seg-btn is-on" data-mode="risk">Risk</button>
+                  <button class="seg-btn" data-mode="traffic">Traffic</button>
+                </div>
+                <div class="chk-group" id="map-layers">
+                  <label class="chk"><input type="checkbox" data-layer="vehicles" checked><span>Vehicles</span></label>
+                  <label class="chk"><input type="checkbox" data-layer="incidents" checked><span>Incidents</span></label>
+                  <label class="chk"><input type="checkbox" data-layer="depots" checked><span>Depots</span></label>
+                </div>
+              </div>
+            </div>
+            <div class="map-wrap">
+              <div id="map" class="map"></div>
+              <div class="map-legend" id="map-legend"></div>
+              <div class="map-badge" id="map-badge" hidden></div>
+            </div>
+          </div>
+
+          <div class="rail">
+            <div class="card">
+              <div class="card-head tight">
+                <h2>Needs attention</h2>
+                <button class="linkish" data-goto="alerts">All alerts</button>
+              </div>
+              <div id="attention-list" class="attn-list"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-head tight">
+                <h2>Highest risk corridors</h2>
+                <button class="linkish" data-goto="risk">Details</button>
+              </div>
+              <div id="top-risk-list" class="risk-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="split lower">
+          <div class="card">
+            <div class="card-head tight">
+              <h2>Rainfall driving current risk</h2>
+              <span class="pill soft" id="rain-source">Open-Meteo</span>
+            </div>
+            <div id="rain-chart" class="chart"></div>
+            <p class="muted small" id="rain-note"></p>
+          </div>
+          <div class="card">
+            <div class="card-head tight"><h2>Network risk distribution</h2></div>
+            <div id="risk-dist" class="chart"></div>
+            <div id="reroute-history" class="history"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================ ROAD RISK ============================ -->
+      <section class="view" id="view-risk">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h2>Corridor risk board</h2>
+              <p class="muted">Every national highway corridor scored from live rainfall, terrain, seismic zone, road condition and observed speeds.</p>
+            </div>
+            <div class="seg" id="risk-filter">
+              <button class="seg-btn is-on" data-filter="all">All</button>
+              <button class="seg-btn" data-filter="blocked">Blocked</button>
+              <button class="seg-btn" data-filter="at-risk">At risk</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="risk-table">
+              <thead><tr>
+                <th>Corridor</th><th>Status</th><th>Disruption risk (24h)</th>
+                <th>Rain next 24h</th><th>Traffic</th><th>Length</th><th></th>
+              </tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================== FLEET ============================== -->
+      <section class="view" id="view-fleet">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h2>Fleet</h2>
+              <p class="muted">Vehicle positions advance along real corridor geometry. Click a row to inspect and plan a route.</p>
+            </div>
+            <input class="search" id="fleet-search" type="search" placeholder="Search vehicle, driver, cargo..." />
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="fleet-table">
+              <thead><tr>
+                <th>Vehicle</th><th>Cargo</th><th>Priority</th><th>Status</th>
+                <th>Corridor</th><th>Road risk</th><th>ETA</th><th></th>
+              </tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================ DELIVERIES ============================ -->
+      <section class="view" id="view-deliveries">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h2>Deliveries</h2>
+              <p class="muted">Consignment status against SLA, with the road risk that threatens each one.</p>
+            </div>
+            <div class="seg" id="delivery-filter">
+              <button class="seg-btn is-on" data-filter="all">All</button>
+              <button class="seg-btn" data-filter="at-risk">At risk</button>
+              <button class="seg-btn" data-filter="critical">Critical cargo</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="delivery-table">
+              <thead><tr>
+                <th>Consignment</th><th>Route</th><th>Priority</th><th>Status</th>
+                <th>Reliability</th><th>ETA</th><th>Delay</th>
+              </tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================ INCIDENTS ============================ -->
+      <section class="view" id="view-incidents">
+        <div class="split incidents">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h2>Incident feed</h2>
+                <p class="muted">Live USGS earthquakes, rainfall-derived flood warnings, model predictions and field reports.</p>
+              </div>
+              <div class="seg" id="incident-filter">
+                <button class="seg-btn is-on" data-filter="all">All</button>
+                <button class="seg-btn" data-filter="blocking">Blocking</button>
+                <button class="seg-btn" data-filter="unverified">Unverified</button>
+              </div>
+            </div>
+            <div id="incident-list" class="inc-list"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-head tight"><h2>Report from the field</h2></div>
+            <form class="form" id="incident-form">
+              <label class="field">
+                <span>Corridor</span>
+                <select id="f-corridor" required></select>
+              </label>
+              <label class="field">
+                <span>Type</span>
+                <select id="f-type">
+                  <option value="landslide">Landslide</option>
+                  <option value="flood">Flooding</option>
+                  <option value="roadwork">Roadwork</option>
+                  <option value="accident">Accident</option>
+                  <option value="protest">Blockade / protest</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Severity</span>
+                <select id="f-severity">
+                  <option value="critical">Critical - road closed</option>
+                  <option value="high">High - partly passable</option>
+                  <option value="moderate" selected>Moderate - slow</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>What is happening?</span>
+                <textarea id="f-desc" rows="3" placeholder="Debris across both lanes near km 42..."></textarea>
+              </label>
+              <label class="chk standalone">
+                <input type="checkbox" id="f-blocks" /><span>Road is impassable</span>
+              </label>
+              <button class="btn primary wide" type="submit">Submit report</button>
+              <p class="muted small">Field reports enter the same pipeline as live feeds and immediately re-score corridor risk.</p>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================== ROUTE PLANNER =========================== -->
+      <section class="view" id="view-routes">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h2>Risk-aware route planner</h2>
+              <p class="muted">Options are scored on travel time <em>and</em> disruption risk, weighted by cargo priority.</p>
+            </div>
+            <div class="plan-controls">
+              <select id="plan-vehicle"></select>
+              <button class="btn primary" id="btn-plan">Plan routes</button>
+            </div>
+          </div>
+          <div class="plan-body">
+            <div id="plan-options" class="options"></div>
+            <div class="plan-map-wrap">
+              <div id="plan-map" class="map"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================= INVENTORY ============================= -->
+      <section class="view" id="view-inventory">
+        <div class="split inventory">
+          <div class="card">
+            <div class="card-head tight">
+              <h2>Depot stock cover</h2>
+              <p class="muted">Days of stock remaining by item.</p>
+            </div>
+            <div class="table-wrap">
+              <table class="table" id="inventory-table">
+                <thead><tr><th>Depot</th><th>Item</th><th>Cover</th><th>Status</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head tight"><h2>Suggested transfers</h2></div>
+            <div id="transfer-list" class="transfers"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================ SIMULATION ============================ -->
+      <section class="view" id="view-simulation">
+        <div class="card sim-card">
+          <div class="card-head">
+            <div>
+              <h2>Disruption drill <span class="pill sim">Simulation</span></h2>
+              <p class="muted">Injects a disruption into the live pipeline so the whole chain - risk, fleet, delivery, alerts, reroute - reacts for real.</p>
+            </div>
+            <div class="plan-controls">
+              <select id="sim-scenario"></select>
+              <button class="btn primary" id="sim-start">Start drill</button>
+              <button class="btn ghost" id="sim-reset">Reset</button>
+            </div>
+          </div>
+
+          <ol class="steps" id="sim-steps"></ol>
+
+          <div class="sim-grid">
+            <div class="sim-col">
+              <h3 class="sub">Impact</h3>
+              <div id="sim-impact" class="impact"></div>
+              <h3 class="sub">Event log</h3>
+              <ul class="log" id="sim-log"></ul>
+            </div>
+            <div class="sim-col">
+              <h3 class="sub">Route options</h3>
+              <div id="sim-options" class="options"></div>
+              <div class="decision" id="sim-decision" hidden>
+                <button class="btn primary" id="sim-accept">Accept reroute</button>
+                <button class="btn ghost" id="sim-decline">Hold position</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================== ALERTS ============================== -->
+      <section class="view" id="view-alerts">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h2>Alert inbox</h2>
+              <p class="muted">Acknowledge, assign or resolve. Operator actions survive data refreshes.</p>
+            </div>
+            <button class="btn ghost" id="ack-all">Acknowledge all</button>
+          </div>
+          <div id="alert-list" class="alert-list"></div>
+        </div>
+      </section>
+
+    </div><!-- /scroll -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ============================== DRAWER ============================== -->
+<div class="drawer-scrim" id="drawer-scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-label="Details">
+  <div class="drawer-head">
+    <div>
+      <h2 id="drawer-title">Details</h2>
+      <p class="muted" id="drawer-sub"></p>
+    </div>
+    <button class="icon-btn" id="drawer-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" class="ico"><path d="M6 6l12 12M18 6L6 18" class="stroke"/></svg>
+    </button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</aside>
+
+<div id="toasts" class="toasts"></div>
+
+<div class="boot" id="boot">
+  <div class="boot-inner">
+    <div class="boot-mark">
+      <svg viewBox="0 0 32 32" width="34" height="34">
+        <path d="M6 23c4.5 0 4.5-14 10-14s5.5 14 10 14" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <p>Contacting live data feeds...</p>
+    <small id="boot-note">Open-Meteo - USGS - OSRM - OpenStreetMap</small>
+  </div>
+</div>
+
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/map.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/risk.js"></script>
+<script src="js/fleet.js"></script>
+<script src="js/deliveries.js"></script>
+<script src="js/incidents.js"></script>
+<script src="js/routes.js"></script>
+<script src="js/inventory.js"></script>
+<script src="js/simulation.js"></script>
+<script src="js/alerts.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
